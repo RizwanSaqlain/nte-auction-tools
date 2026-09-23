@@ -1,0 +1,20 @@
+<p>Enter the total value of all gold-rarity collectibles revealed by your gadget in Going, Going, Gone. Find exact-value combinations from the 50 supplied items.</p>
+<nav class="tool-switch" aria-label="Choose a gadget"><a href="/">Nine-Slot Average</a><a href="/gold-rarity" aria-current="page">Gold-Rarity Total</a></nav>
+<form id="goldForm" class="gold-panel">
+  <label for="goldTarget">Gold Collectibles’ Total Value</label><input id="goldTarget" name="target" type="text" inputmode="numeric" autocomplete="off" placeholder="e.g. 88,888…" required pattern="[0-9,]+" aria-describedby="goldHint"><p id="goldHint" class="gold-hint">Use the total, not an average. Matches use exact whole-number values.</p>
+  <fieldset class="gold-constraints"><legend>Search Constraints</legend>
+    <label>Max Copies per Item<input name="maxPerItem" type="number" min="1" max="25" value="5" required autocomplete="off"></label>
+    <label>Max Items<input name="maxCount" type="number" min="1" max="50" value="25" required autocomplete="off"></label>
+    <label>Max Total Slots<input name="maxSlots" type="number" min="1" max="250" value="140" required autocomplete="off" aria-describedby="slotLimitHint"></label>
+    <label>Max Results<input name="maxResults" type="number" min="1" max="2000" value="300" required autocomplete="off"></label>
+  </fieldset>
+  <p class="gold-hint" id="slotLimitHint">Defaults: 5 copies, 25 items, 140 slots. A box has at most 250 slots. Copy and item-count limits are search assumptions. Larger limits can take longer.</p>
+  <details class="gold-known"><summary>Known Items &amp; Gold Catalog <span id="knownSummary">— None Required</span></summary>
+    <label for="goldFilter">Find an Item</label><input id="goldFilter" type="search" name="catalogFilter" autocomplete="off" placeholder="Search item names…"><p class="gold-hint">Set minimum quantities for items you know are in the box. Leave other quantities at 0.</p><div id="goldCatalog" class="gold-catalog"></div>
+  </details>
+  <div class="gold-actions"><button type="submit" class="primary" id="goldSearch">Find Gold Bundles</button><button type="button" id="goldCancel" hidden>Cancel Search</button><button type="reset">Reset Clues</button></div>
+</form>
+<p id="goldStatus" role="status" aria-live="polite">Enter a total to find possible gold collectibles.</p>
+<div id="goldResults"></div><div class="gold-actions" id="goldPagination" hidden><button id="goldPrev" type="button">Previous</button><span id="goldPage"></span><button id="goldNext" type="button">Next</button></div>
+<h2>How to Use the Gold Finder</h2><p>Enter the gadget’s total, adjust your limits, and add any known gold items. Every returned bundle matches that total and respects your selected constraints. Slot counts are summed; this tool does not check whether item shapes fit a box layout.</p><p>A search may stop at your result limit or after a time limit. Partial results are clearly marked and are not ranked by likelihood. The total only covers gold-rarity collectibles; other rarities may add value to the box.</p>
+<link rel="stylesheet" href="/gold.css"><script type="module" src="/gold.js"></script>

@@ -1,0 +1,7 @@
+.agents/
+.codex/
+.git/
+dist/
+README.md
+skills-lock.json
+src/*.test.js

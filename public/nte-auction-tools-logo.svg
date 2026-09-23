@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 96">
+  <title>NTE Auction Tools</title>
+  <g transform="translate(8 8) scale(1.25)">
+    <rect width="64" height="64" rx="14" fill="#c5f36b"/>
+    <path d="m21 14 15 15-9 9-15-15zm10 16 5-5 17 17-5 5z" fill="#111411"/>
+    <rect x="12" y="47" width="28" height="6" rx="2" fill="#111411"/>
+  </g>
+  <text x="108" y="44" font-family="'Helvetica Neue', Arial, sans-serif" font-size="34" font-weight="800" letter-spacing="2" fill="#c5f36b">NTE</text>
+  <text x="109" y="73" font-family="'Helvetica Neue', Arial, sans-serif" font-size="23" font-weight="700" letter-spacing="3" fill="#c5f36b">AUCTION TOOLS</text>
+</svg>

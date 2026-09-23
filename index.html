@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-YHXL7XMPRQ"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-YHXL7XMPRQ');
+  </script>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111411"><meta name="description" content="Decode the average value of 9-slot collectibles in NTE Going, Going, Gone. Find possible collectible bundles and compare your bid.">
+  <title>Going, Going, Gone — NTE Auction Companion</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"><link rel="shortcut icon" href="/favicon.ico"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="stylesheet" href="/styles.css"><script type="module" src="/app.js"></script>
+</head>
+<body>
+<a href="#main" class="skip">Skip to Auction Solver</a>
+<header class="topbar"><a class="brand" href="/" aria-label="Auction companion home"><img class="brandmark" src="/favicon.svg" width="40" height="40" alt=""><span>NTE <b>AUCTION COMPANION</b></span></a><nav aria-label="Main navigation"><a href="#solver">Auction Solver</a><a href="#catalog">Item Catalog</a><a href="#guide">How It Works <span aria-hidden="true">↗</span></a></nav><span class="edition">GOING, GOING, GONE!</span></header>
+<main id="main">
+  <section class="hero"><div><p class="eyebrow"><span class="live-dot"></span> FOUR PLAYERS. ONE WINNING BID.</p><h1>A little intel.<br>A better <span>bid.</span></h1><p class="intro">Decode the average value of 9-slot collectibles.<br>Find what could be inside before the gavel falls.</p></div><div class="hero-meta"><div class="serial">APPRAISER’S FIELD DESK <span>01 / NTE</span></div><p>Observe.<br>Deduce.<br><em>Outbid.</em></p><div class="dataset"><span id="dataCount">Loading bundles…</span><span>8 catalog items</span></div></div></section>
+  <div class="section-bar" id="solver"><h2><span>01</span> Auction Solver</h2><span>YOUR CLUES → POSSIBLE CONTENTS</span></div>
+  <div class="workspace">
+    <section class="clue-panel" aria-labelledby="clueTitle"><div class="panel-heading"><h3 id="clueTitle">Read Your Gadget</h3><button id="reset" class="text-button" type="button">Reset Clues</button></div><p class="muted">Enter the average shown for 9-slot collectibles.</p>
+      <form id="clueForm" novalidate>
+        <label for="average">Average 9-Slot Value <span>GADGET READING</span></label><div class="input-shell"><span aria-hidden="true">◈</span><input id="average" name="average" inputmode="decimal" autocomplete="off" placeholder="e.g. 18,166.5…" aria-describedby="averageHint errors"></div><p class="field-hint" id="averageHint">Compares rounded averages. Default tolerance: ±2.</p>
+        <div class="tolerance"><label for="tolerance">Match Tolerance</label><select id="tolerance" name="tolerance"><option value="0">Exact rounded value</option><option value="1">±1</option><option value="2" selected>±2 (original finder)</option><option value="5">±5</option><option value="10">±10</option></select></div>
+        <fieldset><legend>Number of 9-Slot Collectibles</legend><div class="sizes" id="sizes"><button type="button" data-size="0" aria-pressed="true">Any</button><button type="button" data-size="1" aria-pressed="false">1</button><button type="button" data-size="2" aria-pressed="false">2</button><button type="button" data-size="3" aria-pressed="false">3</button><button type="button" data-size="4" aria-pressed="false">4</button><button type="button" data-size="5" aria-pressed="false">5</button><button type="button" data-size="6" aria-pressed="false">6</button><button type="button" data-size="7" aria-pressed="false">7</button></div></fieldset>
+        <p id="errors" class="error" role="alert"></p><button class="primary" id="find" type="submit">Find Matching Bundles <span aria-hidden="true">↗</span></button>
+      </form><button class="example" id="example" type="button">Try an Example <span aria-hidden="true">→</span></button><p class="scope-note">Uses 8 supplied collectibles in groups of 1–7. Leave the count on Any if the gadget doesn’t reveal it. Repeated items are allowed.</p>
+    </section>
+    <section class="analysis-panel" aria-labelledby="resultsTitle"><div class="results-heading"><div><p class="eyebrow">THE EVIDENCE BOARD</p><h3 id="resultsTitle">Possible 9-Slot Contents <span id="matchCount">—</span></h3></div><span id="matchBadge" class="status-badge">Awaiting Clues</span></div>
+      <div class="stats"><div><span>LOWEST 9-SLOT TOTAL</span><strong id="minStat">—</strong><small>Conservative baseline</small></div></div>
+      <div class="result-tools"><p id="resultDescription" aria-live="polite">Enter the gadget’s average value to find matching collectibles.</p><label for="sort">Sort <select id="sort" name="sort"><option value="closest">Closest Match</option><option value="low">Lowest Total</option><option value="high">Highest Total</option><option value="size">Fewest Items</option></select></label></div>
+      <div id="results"><div class="empty"><span class="empty-symbol" aria-hidden="true">⌕</span><h4>What Fits Your Reading?</h4><p>Enter your average 9-slot value.<br>We’ll find every matching group in your catalog.</p><button class="secondary" id="emptyExample" type="button">Load Example Reading</button></div></div>
+      <div class="pagination" id="pagination" hidden><button id="prev" class="secondary" type="button">← Previous</button><span id="pageLabel"></span><button id="next" class="secondary" type="button">Next →</button></div>
+      <p class="fineprint">Totals include only matching 9-slot collectibles, not other items in the box. Matches are possibilities, not drop probabilities.</p>
+    </section>
+    <aside class="bid-panel" aria-labelledby="bidTitle"><p class="eyebrow">9-SLOT VALUE BASELINE</p><h3 id="bidTitle">Check Your Bid</h3><label for="bid">Your Planned Bid</label><div class="input-shell"><span aria-hidden="true">◈</span><input id="bid" name="bid" autocomplete="off" inputmode="decimal" placeholder="e.g. 100,000…" aria-describedby="bidError"></div><p id="bidError" class="error" role="alert"></p><label for="margin">Value Buffer <output id="marginLabel" for="margin">10%</output></label><input id="margin" name="margin" type="range" min="0" max="50" value="10" step="5"><div class="buffer-range"><span>0%</span><span>50%</span></div><div class="ceiling"><span>BUFFERED BID LIMIT</span><strong id="ceiling">—</strong><p id="ceilingHint">Find matches to calculate a limit.</p></div><div class="profit"><span>Lowest Value − Bid</span><b id="worst">—</b></div><div class="profit"><span>Highest Value − Bid</span><b id="best">—</b></div><p id="bidStatus" class="bid-status" aria-live="polite">Your bid is included when you copy this page’s link.</p><p class="scope-note">Limit = lowest matching 9-slot subtotal × (1 − buffer). Other box contents, fees, and game modifiers are not included. This is a partial-value baseline, not a full box valuation.</p><div class="room"><span aria-hidden="true">● ● ● ●</span><span>4 APPRAISERS AT THE TABLE</span></div></aside>
+  </div>
+  <div class="section-bar" id="catalog"><h2><span>02</span> 9-Slot Catalog</h2><a href="/combinations.csv" download>Download Bundle Data <span aria-hidden="true">↓</span></a></div><section class="catalog" id="catalogItems" aria-label="Supplied item catalog"></section>
+  <section class="guide" id="guide"><div><p class="eyebrow">A QUICK FIELD GUIDE</p><h2>Make Every Clue Count.</h2></div><div><b>01 / Collect Your Intel</b><p>Use the gadget that reveals the average value of all 9-slot collectibles. Enter that reading exactly as displayed.</p></div><div><b>02 / Narrow the Box</b><p>Match the average against the supplied catalog. Choose a count only if you know how many 9-slot collectibles are present.</p></div><div><b>03 / Set Your Limit</b><p>Compare your planned bid with the lowest matching 9-slot subtotal. Other collectibles can add value to the box.</p></div></section>
+</main><footer><span><b>G.</b> NTE AUCTION COMPANION</span><span>Unofficial fan tool · Supplied catalog · No game connection</span></footer><div id="toast" class="toast" role="status" hidden><span id="toastText"></span><button id="undo" type="button">Undo</button></div>
+</body></html>

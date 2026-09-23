@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.vercel/
+.env*
+.wrangler/
+.dev.vars*
+
+.vercel
+
+# Local agent setup and transient files
+.agents/
+.codex/
+skills-lock.json
+*.log
+.DS_Store
+Thumbs.db

@@ -1,0 +1,80 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "routes": [
+    {
+      "src": "/(.*)",
+      "headers": {
+        "X-Content-Type-Options": "nosniff",
+        "Referrer-Policy": "strict-origin-when-cross-origin"
+      },
+      "continue": true
+    },
+    {
+      "src": "/index.html",
+      "headers": {
+        "Location": "/"
+      },
+      "status": 308
+    },
+    {
+      "src": "/(about-us|privacy-policy|terms-and-conditions|contact-us)\\.html",
+      "headers": {
+        "Location": "/$1"
+      },
+      "status": 308
+    },
+    {
+      "src": "/(about-us|privacy-policy|terms-and-conditions|contact-us)/",
+      "headers": {
+        "Location": "/$1"
+      },
+      "status": 308
+    },
+    {
+      "src": "/(404|500)(?:\\.html)?/?",
+      "dest": "/$1.html",
+      "headers": {
+        "X-Robots-Tag": "noindex"
+      },
+      "continue": true
+    },
+    {
+      "src": "/500(?:\\.html)?/?",
+      "dest": "/500.html",
+      "status": 500
+    },
+    {
+      "src": "/404(?:\\.html)?/?",
+      "dest": "/404.html",
+      "status": 404
+    },
+    {
+      "src": "/(about-us|privacy-policy|terms-and-conditions|contact-us)",
+      "dest": "/$1.html"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/404.html",
+      "status": 404
+    },
+    {
+      "handle": "error"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/500.html",
+      "status": 500
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/404.html",
+      "status": 404
+    }
+  ]
+}

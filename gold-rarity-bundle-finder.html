@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bundle Finder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink-900:#181c26;
+    --ink-800:#232838;
+    --ink-700:#2f364a;
+    --parchment:#f4ecd8;
+    --gold:#cc9f3e;
+    --gold-bright:#e8bc5c;
+    --rust:#a8483f;
+    --teal:#3c7a72;
+    --line:#3a4258;
+    --text-hi:#f4ecd8;
+    --text-lo:#a9aec2;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 15% 0%, #2a3147 0%, transparent 45%),
+      radial-gradient(circle at 90% 15%, #2c2233 0%, transparent 40%),
+      var(--ink-900);
+    color:var(--text-hi);
+    font-family:'Fraunces', serif;
+    min-height:100vh;
+    padding:32px 20px 60px;
+  }
+  .wrap{max-width:980px;margin:0 auto;}
+
+  header{
+    display:flex;align-items:flex-end;justify-content:space-between;gap:16px;
+    border-bottom:1px solid var(--line);padding-bottom:20px;margin-bottom:24px;
+  }
+  .badge{
+    width:40px;height:40px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, var(--gold-bright), var(--gold) 70%);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 0 0 3px var(--ink-800), 0 0 0 4px var(--line);
+    flex:none;
+  }
+  .badge svg{width:20px;height:20px;}
+  h1{font-size:clamp(26px,4vw,36px);font-weight:700;margin:0;letter-spacing:-0.01em;line-height:1.05;}
+  .titlerow{display:flex;align-items:center;gap:14px;}
+  .subtitle{font-family:'JetBrains Mono', monospace;font-size:12px;color:var(--text-lo);margin-top:6px;max-width:50ch;}
+  .count-pill{
+    font-family:'JetBrains Mono', monospace;font-size:12px;color:var(--ink-900);
+    background:var(--parchment);border-radius:100px;padding:6px 14px;white-space:nowrap;font-weight:600;
+  }
+
+  .constraints{
+    display:flex;gap:10px;flex-wrap:wrap;margin-bottom:26px;
+  }
+  .constraint-chip{
+    font-family:'JetBrains Mono', monospace;font-size:11px;color:var(--text-lo);
+    border:1px solid var(--line);border-radius:100px;padding:6px 12px;
+    display:flex;align-items:center;gap:6px;
+  }
+  .constraint-chip strong{color:var(--gold-bright);}
+
+  section{margin-bottom:30px;}
+  details.roster-details{border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+  details.roster-details summary{
+    cursor:pointer;padding:14px 18px;font-family:'JetBrains Mono', monospace;
+    font-size:12px;color:var(--text-lo);list-style:none;display:flex;justify-content:space-between;align-items:center;
+    background:var(--ink-800);
+  }
+  details.roster-details summary::-webkit-details-marker{display:none;}
+  details.roster-details summary::after{content:"▾"; color:var(--gold-bright); font-size:14px;}
+  details.roster-details[open] summary::after{content:"▴";}
+  .roster{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;
+    padding:14px;
+  }
+  .item-card{
+    background:linear-gradient(160deg, var(--ink-700), var(--ink-800));
+    border:1px solid var(--line);border-radius:10px;padding:9px 10px;
+    display:flex;flex-direction:column;gap:5px;position:relative;
+  }
+  .item-card img{
+    width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:6px;
+    border:1px solid var(--line);background:var(--ink-900);
+  }
+  .item-card .name{font-size:12.5px;font-weight:600;line-height:1.2;min-height:2.4em;}
+  .item-card .row{display:flex;justify-content:space-between;align-items:center;}
+  .item-card .price{font-family:'JetBrains Mono', monospace;font-size:11.5px;color:var(--gold-bright);}
+  .item-card .slots{
+    font-family:'JetBrains Mono', monospace;font-size:10px;color:var(--text-lo);
+    border:1px solid var(--line);border-radius:100px;padding:1px 7px;white-space:nowrap;
+  }
+
+  .panel{
+    background:linear-gradient(170deg, var(--ink-800), var(--ink-900));
+    border:1px solid var(--line);border-radius:14px;padding:24px;
+  }
+  .search-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;}
+  label.field-label{font-family:'JetBrains Mono', monospace;font-size:11px;color:var(--text-lo);display:block;margin-bottom:8px;}
+  .field{flex:1 1 240px;}
+  input[type=text],input[type=number]{
+    width:100%;background:var(--ink-900);border:1px solid var(--line);color:var(--parchment);
+    font-family:'JetBrains Mono', monospace;font-size:16px;padding:12px 14px;border-radius:8px;outline:none;
+  }
+  input:focus{border-color:var(--gold);}
+  button.find-btn{
+    font-family:'JetBrains Mono', monospace;font-size:14px;font-weight:700;padding:12px 22px;
+    border-radius:8px;border:none;background:var(--rust);color:var(--parchment);cursor:pointer;
+    letter-spacing:0.02em;transition:filter .15s;
+  }
+  button.find-btn:hover{filter:brightness(1.12);}
+  button.find-btn:disabled{opacity:0.6;cursor:wait;}
+  .hint{font-family:'JetBrains Mono', monospace;font-size:11px;color:var(--text-lo);margin-top:12px;}
+  .maxfield{flex:0 0 140px;}
+
+  .include-panel{margin-bottom:18px;}
+  .include-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+  .include-title{font-family:'JetBrains Mono', monospace;font-size:11px;color:var(--text-lo);letter-spacing:.04em;}
+  .include-summary{font-family:'JetBrains Mono', monospace;font-size:11px;color:var(--gold-bright);}
+  .include-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:8px;}
+  .include-card{position:relative;width:100%;min-height:181px;padding:8px 7px 9px;border-radius:8px;border:1px solid var(--line);background:var(--ink-900);color:var(--text-hi);font-family:'JetBrains Mono', monospace;font-size:10px;line-height:1.2;transition:border-color .15s,background .15s;}
+  .include-card.selected{border-color:var(--gold);background:linear-gradient(160deg,#3b3440,var(--ink-800));}
+  .include-card .include-img{display:block;width:100px;height:72px;object-fit:contain;margin:0 auto 7px;border-radius:6px;border:1px solid var(--line);background:var(--ink-900);}
+  .include-card .include-name{display:block;min-height:2.4em;padding:0 2px;overflow-wrap:anywhere;text-align:center;}
+  .include-card .include-price{display:block;margin-top:5px;color:var(--gold-bright);font-weight:700;font-size:10px;text-align:center;}
+  .include-controls{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:8px;}
+  .include-control{width:30px;height:26px;border-radius:6px;border:1px solid var(--line);background:var(--ink-800);color:var(--text-hi);font-family:'JetBrains Mono', monospace;font-size:15px;font-weight:700;line-height:1;cursor:pointer;transition:border-color .15s,background .15s,transform .05s;}
+  .include-control:hover{border-color:var(--gold);background:var(--ink-700);}
+  .include-control:active{transform:translateY(1px);}
+  .include-control:disabled{opacity:.35;cursor:not-allowed;}
+  .include-count{min-width:22px;height:24px;display:flex;align-items:center;justify-content:center;color:var(--text-lo);font-weight:700;}
+  .include-card.selected .include-count{color:var(--gold-bright);}
+  .include-reset{font-family:'JetBrains Mono', monospace;font-size:10px;color:var(--text-lo);background:transparent;border:1px solid var(--line);border-radius:7px;padding:5px 9px;cursor:pointer;}
+  .include-reset:hover{color:var(--text-hi);border-color:var(--gold);}
+
+  .constraint-panel{margin-bottom:18px;}
+  .constraint-grid{display:grid;grid-template-columns:repeat(3,minmax(150px,1fr));gap:12px;}
+  .constraint-grid input{font-size:14px;padding:10px 12px;}
+  .constraint-note{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--text-lo);margin:12px 0 0;line-height:1.55;}
+
+  .results{margin-top:26px;}
+  .results-head{
+    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;
+    font-family:'JetBrains Mono', monospace;font-size:12px;color:var(--text-lo);
+    margin-bottom:12px;border-bottom:1px solid var(--line);padding-bottom:10px;
+  }
+  .results-head strong{color:var(--gold-bright);font-size:14px;}
+  .results-summary{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .results-stat{
+    display:inline-flex;align-items:center;gap:5px;
+    border:1px solid var(--line);border-radius:100px;padding:5px 10px;
+    background:var(--ink-800);white-space:nowrap;
+  }
+  .results-stat b{color:var(--gold-bright);font-size:12px;}
+  .results-stat .label{color:var(--text-lo);}
+  .truncated-note{
+    font-family:'JetBrains Mono', monospace;font-size:11.5px;color:var(--gold-bright);
+    background:rgba(204,159,62,0.1);border:1px solid var(--gold);border-radius:8px;
+    padding:10px 14px;margin-bottom:14px;
+  }
+
+  .result-row{
+    background:var(--ink-900);border:1px solid var(--line);border-left:3px solid var(--teal);
+    border-radius:8px;padding:12px 16px;margin-bottom:8px;
+  }
+  .result-row .items-list{
+    font-size:13.5px;line-height:1.5;display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px;
+  }
+  .chip-item{
+    display:inline-flex;align-items:center;gap:6px;background:var(--ink-800);
+    border:1px solid var(--line);border-radius:100px;padding:3px 11px 3px 3px;
+  }
+  .chip-item img{width:24px;height:24px;border-radius:50%;object-fit:cover;border:1px solid var(--line);background:var(--ink-900);}
+  .chip-item .qty{color:var(--gold-bright);font-family:'JetBrains Mono', monospace;font-weight:700;font-size:11px;}
+  .result-row .meta{
+    font-family:'JetBrains Mono', monospace;font-size:11.5px;color:var(--text-lo);
+    display:flex;gap:16px;flex-wrap:wrap;border-top:1px dashed var(--line);padding-top:8px;
+  }
+  .result-row .meta b{color:var(--parchment);}
+
+  .empty-state{
+    font-family:'JetBrains Mono', monospace;font-size:13px;color:var(--text-lo);
+    padding:30px 10px;text-align:center;border:1px dashed var(--line);border-radius:10px;
+  }
+  .empty-state .big{font-family:'Fraunces', serif;font-size:20px;color:var(--text-hi);display:block;margin-bottom:6px;}
+
+  footer{margin-top:36px;font-family:'JetBrains Mono', monospace;font-size:11px;color:var(--text-lo);text-align:center;}
+
+  @media (max-width:520px){
+    header{flex-direction:column;align-items:flex-start;gap:10px;}
+    .constraint-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="titlerow">
+      <div class="badge">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 2l2.6 6.6L22 9l-5.6 4.8L18 21l-6-4-6 4 1.6-7.2L2 9l7.4-0.4L12 2z" fill="#181c26"/></svg>
+      </div>
+      <div>
+        <h1>Bundle Finder</h1>
+        <div class="subtitle">find bundles of items that sum to an exact target price</div>
+      </div>
+    </div>
+    <div class="count-pill" id="itemCountPill">50 items</div>
+  </header>
+
+  <div class="constraints">
+    <div class="constraint-chip">max <strong id="perItemChip">5</strong> of any one item</div>
+    <div class="constraint-chip">max <strong id="totalItemChip">25</strong> items total</div>
+    <div class="constraint-chip">max <strong id="totalSlotChip">140</strong> slots total</div>
+    <div class="constraint-chip" id="maxSumChip">max possible sum: —</div>
+  </div>
+
+  <section class="panel constraint-panel" aria-labelledby="constraintTitle">
+    <div class="include-head"><div class="include-title" id="constraintTitle">SEARCH CONSTRAINTS</div></div>
+    <div class="constraint-grid">
+      <div><label class="field-label" for="maxPerItemInput">MAX COPIES OF ONE ITEM</label><input id="maxPerItemInput" type="number" value="5" min="1" max="25"></div>
+      <div><label class="field-label" for="maxTotalItemsInput">MAX ITEMS IN BUNDLE</label><input id="maxTotalItemsInput" type="number" value="25" min="1" max="50"></div>
+      <div><label class="field-label" for="maxTotalSlotsInput">MAX TOTAL SLOTS</label><input id="maxTotalSlotsInput" type="number" value="140" min="1" max="500"></div>
+    </div>
+    <p class="constraint-note">Changes apply to the next search. Lower limits reduce the search space; larger limits can take longer.</p>
+  </section>
+
+  <section>
+    <details class="roster-details">
+      <summary><span>ITEM ROSTER (50)</span><span>tap to expand</span></summary>
+      <div class="roster" id="roster"></div>
+    </details>
+  </section>
+
+  <section>
+    <div class="panel include-panel">
+      <div class="include-head">
+        <div class="include-title">KNOWN / INCLUDED ITEMS — use + / − to require quantities in every result</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="include-summary" id="includeSummary">none selected</div>
+          <button class="include-reset" id="clearIncludesBtn" type="button">Clear</button>
+        </div>
+      </div>
+      <div class="include-grid" id="includeGrid"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="panel">
+      <div class="search-row">
+        <div class="field">
+          <label class="field-label">TARGET SUM</label>
+          <input type="text" id="targetInput" placeholder="e.g. 100000" inputmode="numeric">
+        </div>
+        <div class="field maxfield">
+          <label class="field-label">MAX RESULTS</label>
+          <input type="number" id="maxResultsInput" value="300" min="1" max="2000">
+        </div>
+        <div class="field" style="flex:0 0 auto;">
+          <button class="find-btn" id="findBtn">Find bundles</button>
+        </div>
+      </div>
+      <div class="hint" id="hintText">Searches for exact matches under all constraints above. Click known items above to require them in every bundle; each click increases that item's required quantity. If a target has a huge number of valid bundles, results stop at the max above rather than searching forever.</div>
+    </div>
+  </section>
+
+  <section class="results" id="resultsSection" style="display:none;">
+    <div class="results-head">
+      <span><strong id="resultCount">0</strong> bundle(s) found</span>
+      <div class="results-summary">
+        <span class="results-stat"><span class="label">avg items</span> <b id="avgItems">—</b></span>
+        <span class="results-stat"><span class="label">avg slots</span> <b id="avgSlots">—</b></span>
+        <span id="resultMeta"></span>
+      </div>
+    </div>
+    <div id="truncatedNote"></div>
+    <div id="resultsList"></div>
+
+  </section>
+
+  <footer>Place the item images in an "items" folder next to this file, using the same file names as the originals.</footer>
+
+</div>
+
+<script>
+  const IMG_DIR = "items/";
+
+  // name, price, slots, file
+  const RAW_ITEMS = [
+    ["Crimson Gem", 9938, 1, "CrimsonGem.png"],
+    ["Laurel Crown", 7648, 1, "LaurelCrown.png"],
+    ["Light Cube", 5041, 1, "LightCube.png"],
+    ["Nekomaru Tonkotsu Ramen", 9040, 1, "NekomaruTonkatsuRamen.png"],
+    ["Page 23", 5047, 1, "Page23.png"],
+    ["Starfish", 5555, 1, "Starfish.png"],
+    ["Sunset Pearl", 4975, 1, "SunsetPearl.png"],
+    ["Azure Eye", 60285, 2, "AzureEye.png"],
+    ["Byte Bread", 60040, 2, "ByteBread.png"],
+    ["Cubox Technologies Smartwatch", 7500, 2, "CuboxSmartWatch.png"],
+    ["Gilded Ring", 38316, 2, "GildedRing.png"],
+    ["Grand Slam Hand Roll", 7610, 2, "GrandSlamHandRoll.png"],
+    ["Silent Petal", 7547, 2, "SilentPetal.png"],
+    ["Watchmen - Elite", 37558, 2, "WatchmenElite.png"],
+    ["Yellow Glaze Vase", 13632, 2, "YellowGlazeVase.png"],
+    ["Crown Called Nobility", 18193, 3, "CrownCalledNobility.png"],
+    ["Cubox Technologies Stylus", 12116, 3, "CuboxTechnologiesStylus.png"],
+    ["Freewire Cable", 11974, 3, "FreewireCable.png"],
+    ["Kaleidoscope", 21012, 3, "Kaleidescope.png"],
+    ["Knight Decal", 12164, 3, "KnightDecal.png"],
+    ["Scepter Called Prestige", 77777, 3, "ScepterCalledPrestige.png"],
+    ["Vine-Pattern Chopsticks", 20238, 3, "VinePatternChopsticks.png"],
+    ["Weather Guide", 15024, 3, "WeatherGuide.png"],
+    ["Blueflame Spark Plug", 15108, 4, "BlueFlameSparkPlug.png"],
+    ["Blue and White Porcelain Vase", 62456, 4, "BlueWhitePorcelainVase.png"],
+    ["Crystal Tail", 101403, 4, "CrystalTail.png"],
+    ["Cubox Technologies Power Bank", 11981, 4, "CuboxPowerBank.png"],
+    ["Double-Neck Jade Bottle - White", 80754, 4, "Double-NeckJade.png"],
+    ["Golden Arowana", 111111, 4, "GoldenArowana.png"],
+    ["Oceanic Dewdrops", 19926, 4, "OceanicDewdrops.png"],
+    ["Snowfall Emerald", 15037, 4, "SnowfallEmerald.png"],
+    ["Spring Sheath", 15309, 4, "SpringSheath.png"],
+    ["Universal Adapter", 18031, 4, "UniversalAdapter.png"],
+    ["A Moment's Pause", 88888, 6, "AMoment'sPause.png"],
+    ["Camera", 76591, 6, "Camera.png"],
+    ["Kokoro Rider L1 - Ultimate Skill", 22847, 6, "KokoroRiderL1.png"],
+    ["Kokoro Rider L2 - Nimbus Flash", 22770, 6, "KokoroRiderL2.png"],
+    ["Kokoro Rider L3 - Spartan Spirit", 22297, 6, "KokoroRiderL3.png"],
+    ["Sea Salt Deep in the Heart", 30211, 6, "SeasaltDeep.png"],
+    ["Whisperseed", 22336, 6, "Whisperseed.png"],
+    ["Cloudcutter", 18288, 5, "CloudCutter.png"],
+    ["Your Fitness Buddy!", 27246, 5, "YourFitnessBuddy.png"],
+    ["Asahi Inori Figurine", 30264, 9, "AsahiInoriFigurine.png"],
+    ["Wheelchair Model", 27159, 9, "WheelchairModel.png"],
+    ["Canned Imaginadough", 124816, 12, "CannedImaginadough.png"],
+    ["Coco Stripe", 101537, 12, "CocoStripe.png"],
+    ["Crimson Call", 101554, 16, "CrimsonCall.png"],
+    ["Flatbread", 202798, 20, "Flatbread.png"],
+    ["Giovanni's Gilded Statue", 271827, 20, "GiovanniStatue.png"],
+    ["Orrery", 51077, 25, "Orrery.png"],
+  ];
+
+  const ITEMS = RAW_ITEMS.map(([name, price, slot, file]) => ({ name, price, slot, img: IMG_DIR + file }));
+
+  const DEFAULT_CONSTRAINTS = { maxPerItem: 5, maxTotalCount: 25, maxTotalSlots: 140 };
+
+  // Sort descending by price for tight branch-and-bound pruning.
+  const SORTED = [...ITEMS].sort((a, b) => b.price - a.price);
+  const N = SORTED.length;
+
+  const fmt = n => n.toLocaleString('en-US');
+
+  // ---- Build the exact suffix "max achievable price" table ----
+  // suffixMax[idx][count][slots] = max price achievable using SORTED[idx:]
+  // with total picks <= count and total slots <= slots.
+  function buildSuffixMax({ maxPerItem, maxTotalCount, maxTotalSlots }) {
+    const table = new Array(N + 1);
+    table[N] = Array.from({ length: maxTotalCount + 1 }, () => new Int32Array(maxTotalSlots + 1));
+    for (let idx = N - 1; idx >= 0; idx--) {
+      const { price, slot } = SORTED[idx];
+      const prev = table[idx + 1];
+      const cur = Array.from({ length: maxTotalCount + 1 }, () => new Int32Array(maxTotalSlots + 1));
+      for (let kc = 0; kc <= maxTotalCount; kc++) {
+        for (let ks = 0; ks <= maxTotalSlots; ks++) {
+          let best = 0;
+          const maxQ = Math.min(maxPerItem, kc, slot > 0 ? Math.floor(ks / slot) : maxPerItem);
+          for (let q = 0; q <= maxQ; q++) {
+            const val = price * q + prev[kc - q][ks - slot * q];
+            if (val > best) best = val;
+          }
+          cur[kc][ks] = best;
+        }
+      }
+      table[idx] = cur;
+    }
+    return table;
+  }
+
+  document.getElementById('itemCountPill').textContent = ITEMS.length + ' items';
+
+  // ---- Render roster ----
+  const roster = document.getElementById('roster');
+  ITEMS.forEach(it => {
+    const div = document.createElement('div');
+    div.className = 'item-card';
+    div.innerHTML = `<img src="${it.img}" alt="${it.name}" onerror="this.style.display='none'">
+      <div class="name">${it.name}</div>
+      <div class="row"><span class="price">${fmt(it.price)}</span><span class="slots">${it.slot} slot${it.slot>1?'s':''}</span></div>`;
+    roster.appendChild(div);
+  });
+
+  // ---- Search (backtracking with exact suffix-bound pruning) ----
+  function search(target, maxResults, minQtyByName = {}, constraints) {
+    const suffixMax = buildSuffixMax(constraints);
+    const results = [];
+    let nodes = 0;
+    const start = performance.now();
+    let stopped = false;
+    const minQty = SORTED.map(item => Math.max(0, Math.min(constraints.maxPerItem, Number(minQtyByName[item.name]) || 0)));
+    const remainingRequiredCount = new Int32Array(N + 1);
+    for (let i = N - 1; i >= 0; i--) remainingRequiredCount[i] = remainingRequiredCount[i + 1] + minQty[i];
+
+    function dfs(idx, remainingCount, remainingSlots, currentSum, combo) {
+      nodes++;
+      if (stopped) return;
+      if (results.length >= maxResults) {
+        stopped = true; return;
+      }
+      if (currentSum === target) {
+        if (idx === N || remainingRequiredCount[idx] === 0) results.push(combo.slice());
+        return;
+      }
+      if (idx === N || remainingCount === 0 || remainingSlots === 0 || currentSum > target) return;
+      if (remainingRequiredCount[idx] > remainingCount) return;
+      if (currentSum + suffixMax[idx][remainingCount][remainingSlots] < target) return;
+
+      const item = SORTED[idx];
+      const requiredQ = minQty[idx];
+      const maxQ = Math.min(constraints.maxPerItem, remainingCount, item.slot > 0 ? Math.floor(remainingSlots / item.slot) : constraints.maxPerItem);
+      for (let q = maxQ; q >= requiredQ; q--) {
+        const newSum = currentSum + item.price * q;
+        if (newSum > target) continue;
+        if (q > 0) combo.push({ item, qty: q });
+        dfs(idx + 1, remainingCount - q, remainingSlots - item.slot * q, newSum, combo);
+        if (q > 0) combo.pop();
+        if (stopped) return;
+      }
+    }
+
+    dfs(0, constraints.maxTotalCount, constraints.maxTotalSlots, 0, []);
+    return { results, nodes, elapsedMs: performance.now() - start, stopped, maxPossibleSum: suffixMax[0][constraints.maxTotalCount][constraints.maxTotalSlots] };
+  }
+
+  // ---- UI wiring ----
+  const targetInput = document.getElementById('targetInput');
+  const maxResultsInput = document.getElementById('maxResultsInput');
+  const findBtn = document.getElementById('findBtn');
+  const resultsSection = document.getElementById('resultsSection');
+  const resultsList = document.getElementById('resultsList');
+  const resultCount = document.getElementById('resultCount');
+  const resultMeta = document.getElementById('resultMeta');
+  const avgItems = document.getElementById('avgItems');
+  const avgSlots = document.getElementById('avgSlots');
+  const truncatedNote = document.getElementById('truncatedNote');
+  const includeGrid = document.getElementById('includeGrid');
+  const includeSummary = document.getElementById('includeSummary');
+  const clearIncludesBtn = document.getElementById('clearIncludesBtn');
+  const maxPerItemInput = document.getElementById('maxPerItemInput');
+  const maxTotalItemsInput = document.getElementById('maxTotalItemsInput');
+  const maxTotalSlotsInput = document.getElementById('maxTotalSlotsInput');
+
+  // Minimum required quantity for each item. Clicking a button increases it up to the current per-item limit.
+  const includedQty = Object.fromEntries(ITEMS.map(it => [it.name, 0]));
+
+  function readConstraints() {
+    const read = (input, fallback, ceiling) => Math.max(1, Math.min(ceiling, Math.floor(Number(input.value) || fallback)));
+    return {
+      maxPerItem: read(maxPerItemInput, DEFAULT_CONSTRAINTS.maxPerItem, 25),
+      maxTotalCount: read(maxTotalItemsInput, DEFAULT_CONSTRAINTS.maxTotalCount, 50),
+      maxTotalSlots: read(maxTotalSlotsInput, DEFAULT_CONSTRAINTS.maxTotalSlots, 500)
+    };
+  }
+
+  function updateConstraintSummary(constraints) {
+    document.getElementById('perItemChip').textContent = constraints.maxPerItem;
+    document.getElementById('totalItemChip').textContent = constraints.maxTotalCount;
+    document.getElementById('totalSlotChip').textContent = constraints.maxTotalSlots;
+    const max = buildSuffixMax(constraints)[0][constraints.maxTotalCount][constraints.maxTotalSlots];
+    document.getElementById('maxSumChip').innerHTML = `max possible sum: <strong>${fmt(max)}</strong>`;
+    return max;
+  }
+
+  function getIncludeStats() {
+    return ITEMS.reduce((acc, it) => {
+      const q = includedQty[it.name] || 0;
+      acc.count += q;
+      acc.slots += q * it.slot;
+      acc.sum += q * it.price;
+      acc.selected += q > 0 ? 1 : 0;
+      return acc;
+    }, { count: 0, slots: 0, sum: 0, selected: 0 });
+  }
+
+  function includeImgCandidates(it) {
+    if (it.name === "A Moment's Pause") {
+      return [IMG_DIR + "AMoment'sPause.png", IMG_DIR + "AMoment_sPause.png", IMG_DIR + "AMomentsPause.png"];
+    }
+    return [it.img];
+  }
+
+  function renderIncludeControls() {
+    const includeItems = [...ITEMS].sort((a, b) => a.price - b.price);
+    includeGrid.innerHTML = includeItems.map(it => {
+      const q = includedQty[it.name] || 0;
+      const candidates = includeImgCandidates(it);
+      const first = candidates[0];
+      const fallback = candidates.slice(1).join('|');
+      const safeName = it.name.replace(/"/g, '&quot;');
+      return `<div class="include-card${q ? ' selected' : ''}" data-item-name="${safeName}">
+        <img class="include-img" src="${first}" alt="${it.name}" data-fallbacks="${fallback}" onerror="const f=this.dataset.fallbacks.split('|'); if(f[0]){this.src=f.shift();this.dataset.fallbacks=f.join('|');}else{this.style.display='none';}">
+        <span class="include-name">${it.name}</span>
+        <span class="include-price">${fmt(it.price)}</span>
+        <div class="include-controls">
+          <button type="button" class="include-control include-minus" aria-label="Decrease ${safeName} requirement" ${q === 0 ? 'disabled' : ''}>−</button>
+          <span class="include-count" aria-live="polite">${q}</span>
+          <button type="button" class="include-control include-plus" aria-label="Increase ${safeName} requirement" ${q >= readConstraints().maxPerItem ? 'disabled' : ''}>+</button>
+        </div>
+      </div>`;
+    }).join('');
+    const stats = getIncludeStats();
+    includeSummary.textContent = stats.selected === 0
+      ? 'none selected'
+      : `${stats.selected} type${stats.selected === 1 ? '' : 's'} · ${stats.count} item${stats.count === 1 ? '' : 's'} · ${fmt(stats.slots)} slots`;
+  }
+
+  function includesAreFeasible(target, constraints) {
+    const stats = getIncludeStats();
+    return stats.count <= constraints.maxTotalCount && stats.slots <= constraints.maxTotalSlots && stats.sum <= target;
+  }
+
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function runSearch() {
+    const raw = targetInput.value.trim().replace(/,/g, '');
+    resultsSection.style.display = 'block';
+    truncatedNote.innerHTML = '';
+
+    if (raw === '' || isNaN(Number(raw)) || !Number.isInteger(Number(raw)) || Number(raw) < 0) {
+      resultsList.innerHTML = `<div class="empty-state"><span class="big">Enter a whole number</span>Type a target sum above, then hit Find bundles.</div>`;
+      resultCount.textContent = '0';
+      resultMeta.textContent = '';
+      avgItems.textContent = '—';
+      avgSlots.textContent = '—';
+      return;
+    }
+
+    const target = Number(raw);
+    const maxResults = Math.max(1, Math.min(2000, Number(maxResultsInput.value) || 300));
+    const constraints = readConstraints();
+    const maxPossibleSum = updateConstraintSummary(constraints);
+    const includeStats = getIncludeStats();
+
+    if (!includesAreFeasible(target, constraints)) {
+      resultsList.innerHTML = `<div class="empty-state"><span class="big">No bundle can satisfy the included items</span>The required minimum is ${fmt(includeStats.count)} items, ${fmt(includeStats.slots)} slots, and ${fmt(includeStats.sum)} value. Your current limits are ${fmt(constraints.maxTotalCount)} items, ${fmt(constraints.maxTotalSlots)} slots, and the exact target sum.</div>`;
+      resultCount.textContent = '0';
+      resultMeta.textContent = '';
+      avgItems.textContent = '—';
+      avgSlots.textContent = '—';
+      return;
+    }
+
+    if (target > maxPossibleSum) {
+      resultsList.innerHTML = `<div class="empty-state"><span class="big">No bundle can reach that sum</span>The highest possible total under the current constraints is ${fmt(maxPossibleSum)}.</div>`;
+      resultCount.textContent = '0';
+      resultMeta.textContent = '';
+      avgItems.textContent = '—';
+      avgSlots.textContent = '—';
+      return;
+    }
+
+    findBtn.disabled = true;
+    findBtn.textContent = 'Searching…';
+
+    // Let the UI repaint before the (synchronous) search runs.
+    setTimeout(() => {
+      const { results, nodes, elapsedMs, stopped } = search(target, maxResults, includedQty, constraints);
+
+      resultCount.textContent = fmt(results.length);
+      resultMeta.textContent = `target = ${fmt(target)} · ${fmt(nodes)} branches checked in ${(elapsedMs/1000).toFixed(2)}s`;
+
+      // Averages are calculated across exactly the results shown to the user.
+      if (results.length > 0) {
+        let totalItemsShown = 0;
+        let totalSlotsShown = 0;
+        for (const combo of results) {
+          for (const { item, qty } of combo) {
+            totalItemsShown += qty;
+            totalSlotsShown += qty * item.slot;
+          }
+        }
+        avgItems.textContent = (totalItemsShown / results.length).toFixed(2);
+        avgSlots.textContent = (totalSlotsShown / results.length).toFixed(2);
+      } else {
+        avgItems.textContent = '—';
+        avgSlots.textContent = '—';
+      }
+
+      if (stopped && results.length >= maxResults) {
+        truncatedNote.innerHTML = `Stopped after ${fmt(maxResults)} matches — more may exist. Raise "max results" or narrow your target to see further options.`;
+      }
+
+      if (results.length === 0) {
+        resultsList.innerHTML = `<div class="empty-state"><span class="big">No bundle matches that sum</span>Try a different target or adjust the current ${fmt(constraints.maxTotalCount)}-item and ${fmt(constraints.maxTotalSlots)}-slot limits.</div>`;
+      } else {
+        resultsList.innerHTML = results.map(combo => {
+          const chips = combo.map(({ item, qty }) =>
+            `<span class="chip-item"><img src="${item.img}" alt="${item.name}" onerror="this.style.display='none'">${item.name}${qty > 1 ? ` <span class="qty">×${qty}</span>` : ''}</span>`
+          ).join('');
+          const totalCount = combo.reduce((a, c) => a + c.qty, 0);
+          const totalSlots = combo.reduce((a, c) => a + c.qty * c.item.slot, 0);
+          return `<div class="result-row">
+            <div class="items-list">${chips}</div>
+            <div class="meta"><span>items: <b>${totalCount}</b></span><span>slots: <b>${totalSlots}</b></span><span>sum: <b>${fmt(target)}</b></span></div>
+          </div>`;
+        }).join('');
+      }
+
+      findBtn.disabled = false;
+      findBtn.textContent = 'Find bundles';
+    }, 20);
+  }
+
+  includeGrid.addEventListener('click', e => {
+    const control = e.target.closest('.include-control');
+    if (!control) return;
+    const card = control.closest('.include-card');
+    if (!card) return;
+    const name = card.dataset.itemName;
+    const current = includedQty[name] || 0;
+    includedQty[name] = control.classList.contains('include-plus')
+      ? Math.min(readConstraints().maxPerItem, current + 1)
+      : Math.max(0, current - 1);
+    renderIncludeControls();
+    if (targetInput.value.trim() !== '') runSearch();
+  });
+
+  clearIncludesBtn.addEventListener('click', () => {
+    ITEMS.forEach(it => { includedQty[it.name] = 0; });
+    renderIncludeControls();
+    if (targetInput.value.trim() !== '') runSearch();
+  });
+
+  renderIncludeControls();
+  updateConstraintSummary(readConstraints());
+
+  [maxPerItemInput, maxTotalItemsInput, maxTotalSlotsInput].forEach(input => input.addEventListener('change', () => {
+    const constraints = readConstraints();
+    input.value = input === maxPerItemInput ? constraints.maxPerItem : input === maxTotalItemsInput ? constraints.maxTotalCount : constraints.maxTotalSlots;
+    Object.keys(includedQty).forEach(name => { includedQty[name] = Math.min(includedQty[name], constraints.maxPerItem); });
+    renderIncludeControls();
+    updateConstraintSummary(constraints);
+  }));
+
+  findBtn.addEventListener('click', runSearch);
+  targetInput.addEventListener('keydown', e => { if (e.key === 'Enter') runSearch(); });
+</script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+import { mkdir, copyFile, cp, unlink } from 'node:fs/promises';
+import { generatePages } from './seo-pages.mjs';
+await mkdir('dist', { recursive: true });
+for (const f of ['index.html','styles.css','app.js']) await copyFile(f, `dist/${f}`);
+await mkdir('dist/src', { recursive: true });
+await copyFile('src/engine.js', 'dist/src/engine.js');
+await unlink('dist/src/engine.test.js').catch(error => { if(error.code !== 'ENOENT') throw error; });
+await cp('public', 'dist', { recursive: true });
+await generatePages();
+await import('./link-gold.mjs');
+console.log('Built static auction tool in dist/');

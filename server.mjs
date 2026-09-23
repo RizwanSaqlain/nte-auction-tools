@@ -1,0 +1,13 @@
+import { createServer } from 'node:http';
+import { readFile } from 'node:fs/promises';
+import { resolve, extname, sep } from 'node:path';
+const root = resolve('dist');
+const types = { '.html':'text/html', '.css':'text/css', '.js':'text/javascript', '.json':'application/json', '.png':'image/png', '.csv':'text/csv' };
+createServer(async (req,res) => {
+  try {
+    const path = resolve(root, '.' + decodeURIComponent(new URL(req.url,'http://localhost').pathname === '/' ? '/index.html' : new URL(req.url,'http://localhost').pathname));
+    if (!path.startsWith(root + sep)) { res.writeHead(403); return res.end(); }
+    const body = await readFile(path);
+    res.writeHead(200, {'Content-Type':types[extname(path)] || 'application/octet-stream'}); res.end(body);
+  } catch { res.writeHead(404); res.end('Not found'); }
+}).listen(4173,'127.0.0.1',()=>console.log('Auction tool: http://127.0.0.1:4173'));

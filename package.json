@@ -1,0 +1,16 @@
+{
+  "name": "nte-auction-tools",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node server.mjs",
+    "build": "node build.mjs",
+    "test": "node --test src/engine.test.js cloudflare/worker.test.js cloudflare/gold.test.js cloudflare/gold-limits.test.js",
+    "build:cloudflare": "node build-cloudflare.mjs",
+    "deploy:cloudflare": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.129.0"
+  }
+}
