@@ -16,7 +16,7 @@ Nine-slot calculator with sample matching bundles and bid planning:
 
 ![Nine-slot example showing three matching bundles and a buffered bid limit](docs/screenshots/nine-slot-example.png)
 
-Screenshots captured from the live website on September 26, 2026.
+
 
 ## Tools
 
@@ -29,7 +29,7 @@ Results are possibilities, not probabilities. These tools value the relevant col
 
 ## Quick start
 
-Requires Node.js 22 or newer and npm. No provider API keys or LLM services are required to run the website.
+Requires Node.js 22 or newer and npm. No provider API keys are required to run the website.
 
 ```sh
 npm ci
@@ -91,4 +91,3 @@ Production uses Cloudflare Workers with static assets. See [deployment instructi
 
 Local `.env*`, `.dev.vars*`, `.wrangler`, `.vercel`, dependencies and generated `dist` are excluded from Git. Never commit provider keys, dashboard credentials, contact recipient secrets, or local account bindings. The public analytics measurement ID is not a secret; forks should replace or remove it in `seo-pages.mjs`.
 
-FreeLLMAPI is an optional development aid installed separately. It is not part of the website runtime or this repository.
