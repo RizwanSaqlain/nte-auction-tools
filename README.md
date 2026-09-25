@@ -6,6 +6,18 @@ Free, unofficial collectible valuation calculators for **Neverness to Everness**
 
 ![NTE Auction Tools logo](public/nte-auction-tools-logo.svg)
 
+## Website preview
+
+Homepage and device selector:
+
+![NTE Auction Tools homepage with the device selector](docs/screenshots/homepage.png)
+
+Nine-slot calculator with sample matching bundles and bid planning:
+
+![Nine-slot example showing three matching bundles and a buffered bid limit](docs/screenshots/nine-slot-example.png)
+
+Screenshots captured from the live website on September 26, 2026.
+
 ## Tools
 
 - **Nine-slot Average Valuation Device:** match a gadget average against 6,434 unordered bundles of 1–7 items from eight nine-slot collectibles. Repeated items are allowed. Default tolerance compares rounded averages within ±2.
