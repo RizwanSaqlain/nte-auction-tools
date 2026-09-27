@@ -1,4 +1,4 @@
-import { ITEMS, findBundles, summarize } from './src/engine.js';
+import { ITEMS, findBundles, summarize, generateBundles } from './src/engine.js';
 const $=id=>document.getElementById(id);
 const fmt=new Intl.NumberFormat('en-US',{maximumFractionDigits:2});
 const number=n=>fmt.format(n);
@@ -104,9 +104,7 @@ $('undo').addEventListener('click',()=>{if(undoState){restore(undoState);if(hasS
 function loadUrl(){const q=new URLSearchParams(location.search);restore({...Object.fromEntries(q),searched:q.get('search')==='1'});}
 loadUrl();renderBid();
 try{
-  const response=await fetch('/combinations.json');if(!response.ok)throw new Error('Failed to load');
-  const data=await response.json();
-  if(!Array.isArray(data)||!data.length||!data.every(b=>[1,2,3,4,5,6,7].includes(b.size)&&Array.isArray(b.items)&&b.items.length===b.size&&b.items.every(n=>imageFor(n))&&Number.isFinite(b.sum)&&Number.isFinite(b.average)))throw new Error('Invalid data');
+  const data=generateBundles();
   bundles=data;$('dataCount').textContent=`${number(bundles.length)} bundles indexed`;
   if(hasSearched)search({keepPage:true});
 }catch{$('dataCount').textContent='Bundle data unavailable';$('errors').textContent='Could not load the bundle catalog. Check your connection and reload the page.';$('matchBadge').textContent='Data Unavailable';}

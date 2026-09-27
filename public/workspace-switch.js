@@ -9,7 +9,7 @@ function show(view,save=true){
  if(save){const url=new URL(location.href);if(nine){if(isGold)url.searchParams.set('device','gold');else url.searchParams.delete('device');}if(isCatalog)url.searchParams.set('view','catalog');else url.searchParams.delete('view');history.replaceState(null,'',url);}
 }
 tool.onclick=()=>show('tool');catalog.onclick=()=>show('catalog');select.onchange=()=>{if(!nine){location.href='/?device='+(select.value==='/gold-rarity'?'gold':'nine')+'#workspace-switch';return;}device=select.value==='/gold-rarity'?'gold':'nine';show(currentView);};
-document.addEventListener('click',event=>{const link=event.target.closest('a');if(nine&&link?.getAttribute('href')==='/?device=gold#workspace-switch'){event.preventDefault();device='gold';show('tool');document.getElementById('workspace-switch').scrollIntoView();}});
+document.addEventListener('click',event=>{const link=event.target.closest('a');if(nine&&(link?.getAttribute('href')==='/gold-rarity'||link?.getAttribute('href')==='/?device=gold#workspace-switch')&&!event.ctrlKey&&!event.metaKey&&!event.shiftKey&&!event.altKey&&event.button===0){event.preventDefault();device='gold';show('tool');document.getElementById('workspace-switch').scrollIntoView();}});
 show(new URLSearchParams(location.search).get('view')==='catalog'||location.hash==='#catalog'?'catalog':'tool',false);
 addEventListener('hashchange',()=>{if(location.hash==='#catalog')show('catalog');else if(location.hash==='#solver')show('tool');});
 })();

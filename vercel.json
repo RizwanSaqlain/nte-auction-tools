@@ -7,6 +7,13 @@
     {
       "src": "/(.*)",
       "headers": {
+        "Location": "https://nteauctiontools.com/$1"
+      },
+      "status": 308
+    },
+    {
+      "src": "/(.*)",
+      "headers": {
         "X-Content-Type-Options": "nosniff",
         "Referrer-Policy": "strict-origin-when-cross-origin"
       },

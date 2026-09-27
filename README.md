@@ -54,7 +54,7 @@ Open http://127.0.0.1:4173. This lightweight preview serves `dist` without a reb
 
 | Files | Responsibility |
 | --- | --- |
-| `index.html`, `styles.css`, `app.js` | Main interface and nine-slot interactions |
+| `index.html`, `styles.css`, `app.js` | Main interface and nine-slot interactions (bundles generated locally) |
 | `src/engine.js` | Nine-slot matching and valuation logic |
 | `public/gold.js`, `gold.css` | Gold calculator interface |
 | `public/gold-worker.js` | Gold search running off the UI thread |

@@ -19,7 +19,7 @@ for(const file of await readdir('dist')){
   if(file==='index.html'){
     const fragment=(await readFile('gold-content.html','utf8')).replace(/<nav class="tool-switch"[\s\S]*?<\/nav>/,'');
     html=html.replace('<div class="workspace">',`<div id="gold-area" hidden>${fragment}</div><div class="workspace">`);
-    html=html.replaceAll('href="/gold-rarity"','href="/?device=gold#workspace-switch"');
+
     html=html.replace('<span>8 catalog items</span>','<span>2 valuation devices</span>');
   }
   await writeFile('dist/'+file,html);

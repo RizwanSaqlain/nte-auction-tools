@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "node server.mjs",
     "build": "node build.mjs",
-    "test": "node --test src/engine.test.js cloudflare/worker.test.js cloudflare/gold.test.js cloudflare/gold-limits.test.js",
+    "test": "node --test src/engine.test.js cloudflare/worker.test.js cloudflare/gold.test.js cloudflare/gold-limits.test.js src/catalog-generation.test.js",
     "build:cloudflare": "node build-cloudflare.mjs",
     "deploy:cloudflare": "wrangler deploy"
   },

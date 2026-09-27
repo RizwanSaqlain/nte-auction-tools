@@ -18,7 +18,7 @@ For another domain, update `site.config.json`, the origin in `build-cloudflare.m
 
 ## Vercel (legacy configuration)
 
-`vercel.json` and `api/contact.js` are retained for the original deployment. Cloudflare is the current production target. Before reusing Vercel, review clean-URL routes for all tools, the contact handler's allowed origin, canonical URLs, hosting disclosures, and environment variables. Do not assume the legacy configuration is interchangeable with the Worker.
+The legacy Vercel deployment redirects all requests permanently to `https://nteauctiontools.com`, preserving paths and queries. `vercel.json` intentionally places this redirect before legacy routes to consolidate the old hostname. Production rendering and contact delivery run on Cloudflare.
 
 ## Verification
 

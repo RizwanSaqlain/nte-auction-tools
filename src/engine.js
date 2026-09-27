@@ -24,3 +24,18 @@ export function summarize(matches,bid=0,margin=10) {
   return { min:sums[0],max:sums[n-1],median:n%2?sums[(n-1)/2]:(sums[n/2-1]+sums[n/2])/2,
     ceiling:Math.floor(sums[0]*(1-margin/100)), worst:sums[0]-bid,best:sums[n-1]-bid };
 }
+
+// Enumerate unordered bundles locally; no network catalog fetch is required.
+export function generateBundles() {
+  const bundles=[];
+  function visit(start, remaining, chosen, sum) {
+    if (!remaining) {
+      bundles.push({size:chosen.length,items:chosen.map(item=>item.name),sum,average:Number((sum/chosen.length).toFixed(6))});
+      return;
+    }
+    for(let i=start;i<ITEMS.length;i++) visit(i,remaining-1,[...chosen,ITEMS[i]],sum+ITEMS[i].price);
+  }
+  for(let size=1;size<=7;size++) visit(0,size,[],0);
+  return bundles;
+}
+
