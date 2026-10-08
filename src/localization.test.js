@@ -11,12 +11,12 @@ import {items as japaneseItems} from '../dist/ja/assets/gold-data.js';
 const origin='https://nteauctiontools.com';
 test('every indexable page has reciprocal language links and self canonical',async()=>{
   const sitemap=await readFile('dist/sitemap.xml','utf8');
-  assert.equal([...sitemap.matchAll(/<loc>/g)].length,12);
+  assert.equal([...sitemap.matchAll(/<loc>/g)].length,18);
   for(const slug of ['index','gold-rarity','about-us','privacy-policy','terms-and-conditions','contact-us']){
     const path=slug==='index'?'/':'/'+slug;
-    for(const locale of ['en','ja']){
-      const prefix=locale==='ja'?'/ja':'';
-      const html=await readFile(`dist/${locale==='ja'?'ja/':''}${slug}.html`,'utf8');
+    for(const locale of ['en','ja','zh-CN']){
+      const prefix=locale==='en'?'':locale==='ja'?'/ja':'/zh-cn';
+      const html=await readFile(`dist/${locale==='en'?'':locale==='ja'?'ja/':'zh-cn/'}${slug}.html`,'utf8');
       assert(html.includes(`<html lang="${locale}">`));
       assert(html.includes(`rel="canonical" href="${origin}${prefix}${path}"`));
       assert(html.includes(`hreflang="en" href="${origin}${path}"`));
@@ -48,4 +48,17 @@ test('localized contact options preserve API values and scripts resolve under lo
   assert(home.includes('src="/ja/assets/app.js?v='));
   assert(home.includes('value="/ja/gold-rarity"'));
   assert(home.includes('src="/ja/assets/gold.js?v='));
+});
+
+test('Chinese catalogs preserve all values and solver outcomes',async()=>{
+ const zh=await import('../dist/zh-cn/assets/src/engine.js');
+ const gold=await import('../dist/zh-cn/assets/gold-worker.js');
+ const data=await import('../dist/zh-cn/assets/gold-data.js');
+ assert.deepEqual(zh.generateBundles().map(b=>[b.size,b.sum,b.average]),generateBundles().map(b=>[b.size,b.sum,b.average]));
+ assert.deepEqual(data.items.map(i=>[i.id,i.price,i.slot]),items.map(i=>[i.id,i.price,i.slot]));
+ assert.deepEqual(gold.searchGold({target:30452,maxCount:1,maxPerItem:1,maxSlots:10,maxResults:10,required:{50:1}}).results,[[{id:50,qty:1}]]);
+ const html=await readFile('dist/zh-cn/index.html','utf8');
+ assert(html.includes('value="/zh-cn/gold-rarity"'));
+ assert(html.includes('src="/zh-cn/assets/app.js?v='));
+ assert(html.includes('hreflang="zh-CN" href="https://nteauctiontools.com/zh-cn/"'));
 });

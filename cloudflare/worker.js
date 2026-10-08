@@ -1,7 +1,7 @@
 import contact from '../api/contact.js';
 
 async function errorPage(request,env,status){
-  const url=new URL(request.url);url.pathname=`${url.pathname.startsWith('/ja/')?'/ja':''}/${status}.html`;
+  const url=new URL(request.url);url.pathname=`${url.pathname.match(/^\/(ja|zh-cn)\//)?.[0].slice(0,-1)||''}/${status}.html`;
   const asset=await env.ASSETS.fetch(new Request(url,{method:'GET'}));
   const headers=new Headers(asset.headers);headers.set('X-Robots-Tag','noindex');headers.set('Cache-Control','no-store');
   return new Response(request.method==='HEAD'?null:asset.body,{status,headers});
@@ -17,11 +17,11 @@ export default {
     try{
       // Keep /ja/ as the one canonical Japanese homepage, independent of
       // the asset service's drop-trailing-slash policy for document pages.
-      if(url.pathname==='/ja' || url.pathname==='/ja/index.html' || url.pathname==='/ja/index'){
-        url.pathname='/ja/';return Response.redirect(url.href,301);
-      }
-      if(url.pathname==='/ja/'){
-        url.pathname='/ja';return env.ASSETS.fetch(new Request(url,request));
+      const localeHome=url.pathname.match(/^\/(ja|zh-cn)(?:\/(?:index(?:\.html)?)?)?$/);
+      if(localeHome){
+        const prefix='/'+localeHome[1];
+        if(url.pathname!==prefix+'/'){url.pathname=prefix+'/';return Response.redirect(url.href,301);}
+        url.pathname=prefix;return env.ASSETS.fetch(new Request(url,request));
       }
       if(url.pathname==='/api/contact'){
         let body=null;
@@ -37,8 +37,8 @@ export default {
         const res={setHeader(key,value){headers.set(key,value);},status(value){status=value;return this;},json(data){headers.set('Content-Type','application/json');return new Response(JSON.stringify(data),{status,headers});}};
         return await contact({method:request.method,headers:Object.fromEntries(request.headers),body},res,{recipient:env.CONTACT_EMAIL,origin:url.origin});
       }
-      if(/^\/(?:ja\/)?500(?:\.html)?\/?$/.test(url.pathname))return await errorPage(request,env,500);
-      if(/^\/(?:ja\/)?404(?:\.html)?\/?$/.test(url.pathname))return await errorPage(request,env,404);
+      if(/^\/(?:(?:ja|zh-cn)\/)?500(?:\.html)?\/?$/.test(url.pathname))return await errorPage(request,env,500);
+      if(/^\/(?:(?:ja|zh-cn)\/)?404(?:\.html)?\/?$/.test(url.pathname))return await errorPage(request,env,404);
       const response=await env.ASSETS.fetch(request);
       if(response.status===404)return await errorPage(request,env,404);
       return response;

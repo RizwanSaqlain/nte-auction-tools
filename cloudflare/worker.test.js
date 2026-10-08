@@ -26,6 +26,17 @@ test('Japanese canonical homepage and error routes preserve language',async()=>{
     assert.equal(response.status,status);assert((await response.text()).includes(`/ja/${status}.html`));
   }
 });
+test('Chinese homepage aliases redirect once and localized errors remain noindex',async()=>{
+  for(const path of ['/zh-cn','/zh-cn/index','/zh-cn/index.html']){
+    const response=await worker.fetch(new Request(origin+path+'?device=gold'),env);
+    assert.equal(response.status,301);
+    assert.equal(response.headers.get('Location'),origin+'/zh-cn/?device=gold');
+  }
+  assert.equal((await worker.fetch(new Request(origin+'/zh-cn/'),env)).status,200);
+  const response=await worker.fetch(new Request(origin+'/zh-cn/404'),env);
+  assert.equal(response.status,404);assert.equal(response.headers.get('X-Robots-Tag'),'noindex');
+  assert((await response.text()).includes('/zh-cn/404.html'));
+});
 test('contact rejects wrong method, foreign origins, invalid JSON, and large payloads',async()=>{
   assert.equal((await worker.fetch(new Request(origin+'/api/contact'),env)).status,405);
   for(const [headers,body,status] of [[{Origin:'https://example.org','Content-Type':'application/json'},'{}',403],[{Origin:origin,'Content-Type':'application/json'},'{bad',400],[{Origin:origin,'Content-Type':'application/json'},'x'.repeat(16001),413],[{Origin:origin,'Content-Type':'application/json'},'{}',400]]){assert.equal((await worker.fetch(new Request(origin+'/api/contact',{method:'POST',headers,body}),env)).status,status);}

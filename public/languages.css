@@ -10,3 +10,17 @@ html[lang=ja] .hero-aside{line-height:1.4}
 .topbar .language-switch{gap:8px}.topbar .language-switch a{display:inline-flex}
 @media(max-width:650px){.topbar>nav{flex-wrap:wrap;gap:12px}.language-switch{margin-left:auto}html[lang=ja] .device-heading{font-size:22px!important}.workspace-switch select{max-width:100%}}
 @media(max-width:650px){html[lang=ja] .hero{flex-direction:column;align-items:stretch}html[lang=ja] .hero-meta{width:100%;align-self:stretch}html[lang=ja] .hero-meta>p{font-size:26px;line-height:1.5}html[lang=ja] .hero-meta>p br{display:none}html[lang=ja] .hero-meta>p em{margin-left:8px}.topbar .language-switch{margin-left:0}.topbar>nav:not(.language-switch){order:3;width:100%}.topbar>nav a:last-child{display:inline-flex}}
+
+/* Equal side columns keep primary navigation centered independently of logo width. */
+.topbar{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:20px;padding-block:16px}
+.topbar>.brand{justify-self:start}.topbar>.edition{display:none}
+.topbar>nav:not(.language-switch){justify-self:center;gap:28px;align-items:center}
+.topbar>.language-switch{justify-self:end;margin:0;gap:4px}
+.topbar>nav a,.topbar .device-menu summary{min-height:44px;display:inline-flex;align-items:center;line-height:1.4}
+.topbar .language-switch a:not([aria-current]){color:var(--muted)}
+:lang(zh-CN){font-family:system-ui,-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;overflow-wrap:anywhere}
+html[lang=zh-CN] h1,html[lang=zh-CN] h2,html[lang=zh-CN] h3,html[lang=zh-CN] .eyebrow{letter-spacing:normal}
+@media(max-width:850px){.topbar{grid-template-columns:1fr auto;gap:8px 12px}.topbar>nav:not(.language-switch){grid-row:2;grid-column:1/-1;justify-self:center;width:auto;order:initial}.topbar>.language-switch{grid-row:1;grid-column:2}.topbar>nav a:last-child{display:inline-flex}}
+@media(max-width:480px){.topbar{padding-inline:14px}.topbar .language-switch a{font-size:11px;padding-inline:5px}.topbar .brand{gap:6px}.topbar>nav:not(.language-switch){gap:20px}html[lang=zh-CN] .hero{flex-direction:column;align-items:stretch}html[lang=zh-CN] .hero-meta{width:100%;align-self:stretch}html[lang=zh-CN] .hero-meta>p{font-size:26px;line-height:1.5}html[lang=zh-CN] .hero-meta>p br{display:none}}
+
+.topbar a:focus-visible{outline:2px solid var(--lime);outline-offset:4px;border-radius:3px}.topbar .language-switch a:hover{color:var(--text)}

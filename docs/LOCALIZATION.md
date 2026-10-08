@@ -1,16 +1,16 @@
-# Japanese localization
+# Website localization
 
-English URLs remain unchanged. Japanese pages are generated under `/ja/` with
+English URLs remain unchanged. Simplified Chinese pages use `/zh-cn/` and `zh-CN` language annotations. Japanese pages are generated under `/ja/` with
 matching document paths (for example `/ja/gold-rarity`). There is no geographic
-redirect. The header provides real English and Japanese links; JavaScript carries
+redirect. The header provides real English, Japanese and Simplified Chinese links; JavaScript carries
 calculator query state and unsent calculator values across the language switch.
 
 ## Editing translations
 
-- `locales/ja-static.json`: exact text nodes and human-readable HTML attributes.
-- `locales/ja-runtime.json`: exact runtime messages or template fragments. These
+- `locales/{ja,zh}-static.json`: exact text nodes and human-readable HTML attributes.
+- `locales/{ja,zh}-runtime.json`: exact runtime messages or template fragments. These
   compile into localized assets; do not use bare identifiers as replacement keys.
-- `locales/ja-items.json`: item display names keyed by the English catalog name.
+- `locales/{ja,zh}-items.json`: item display names keyed by the English catalog name.
 - `localize.mjs`: build integration, locale assets, metadata and sitemap generation.
 
 Run `npm run build:cloudflare`. Review `.localization/ja-translation-audit.json`
@@ -31,8 +31,8 @@ available and record the source here. Japanese terminology for the event
 
 ## Search engine behavior
 
-Each indexable page has a self canonical, reciprocal `en` / `ja` alternate links,
-and an `x-default` link to the English equivalent. Both languages appear in the
+Each indexable page has a self canonical, reciprocal `en` / `ja` / `zh-CN` alternate links,
+and an `x-default` link to the English equivalent. All three languages appear in the
 sitemap with matching alternate links. Japanese pages contain translated initial
 HTML, metadata and structured data. Error pages stay noindex and return error
 status codes. The Worker normalizes `/ja` and `/ja/index.html` to `/ja/`, while
@@ -41,3 +41,5 @@ English URLs and existing www/HTTPS redirects stay intact.
 English last-modified dates are retained. Japanese pages initially use 2026-10-08;
 update that date when Japanese content materially changes. Do not automatically
 update sitemap dates for every deployment. No ranking improvement is guaranteed.
+
+Chinese content launched 2026-10-09. Chinese item names are reference translations, not independently verified official labels. All locales share calculations and stable item IDs.

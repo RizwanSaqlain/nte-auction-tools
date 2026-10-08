@@ -4,16 +4,29 @@ import {items} from './public/gold-data.js';
 import {ITEMS} from './src/engine.js';
 
 const readJSON = async path => JSON.parse(await readFile(path, 'utf8'));
-const names = await readJSON('locales/ja-items.json');
-const translations = await readJSON('locales/ja-static.json');
-const runtime = await readJSON('locales/ja-runtime.json');
-runtime['Gold-rarity Valuation Device']='金レアリティ鑑定器';
-runtime['Nine-slot Average Valuation Device']='9マス平均価値鑑定器';
 const site = await readJSON('site.config.json');
 const origin = process.env.SITE_URL || site.url;
 const pages = ['index', 'gold-rarity', 'about-us', 'privacy-policy', 'terms-and-conditions', 'contact-us', '404', '500'];
 const route = slug => slug === 'index' ? '/' : '/' + slug;
-const japanese = path => '/ja' + path;
+const languages=[{code:'en',prefix:'',label:'English',og:'en_US'}, {code:'ja',prefix:'/ja',label:'日本語',og:'ja_JP'}, {code:'zh-CN',prefix:'/zh-cn',label:'简体中文',og:'zh_CN'}];
+const originals=new Map(await Promise.all(pages.map(async slug=>[slug,await readFile(`dist/${slug}.html`,'utf8')])));
+function switcher(path, code) {
+ return `<nav class="language-switch" aria-label="${code==='ja'?'言語':code==='zh-CN'?'语言':'Language'}">${languages.map(l=>`<a data-language="${l.code}" lang="${l.code}" hreflang="${l.code}" href="${l.prefix}${path}"${code===l.code?' aria-current="page"':''}>${l.label}</a>`).join('')}</nav>`;
+}
+function alternates(path) {
+ return languages.map(l=>`<link rel="alternate" hreflang="${l.code}" href="${origin}${l.prefix}${path}">`).join('')+`<link rel="alternate" hreflang="x-default" href="${origin}${path}">`;
+}
+for(const language of languages.slice(1)) {
+const {code,prefix,og}=language;
+const key=code==='ja'?'ja':'zh';
+const names=await readJSON(`locales/${key}-items.json`);
+const translations=await readJSON(`locales/${key}-static.json`);
+const runtime=await readJSON(`locales/${key}-runtime.json`);
+if(code==='ja'){
+ runtime['Gold-rarity Valuation Device']='金レアリティ鑑定器';
+ runtime['Nine-slot Average Valuation Device']='9マス平均価値鑑定器';
+}
+const japanese=path=>prefix+path;
 const escape = text => text.replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;').replaceAll('>','&gt;');
 const missing = new Set();
 const decode = text => text.replace(/&(?:amp|quot|apos|lt|gt|#39);/g, entity=>({'&amp;':'&','&quot;':'"','&apos;':"'",'&#39;':"'",'&lt;':'<','&gt;':'>'}[entity]));
@@ -21,7 +34,7 @@ function translate(text, html=true) {
   const key = text.trim();
   if (!key) return text;
   let value = names[key] ?? translations[key] ?? translations[decode(key)];
-  if (key.endsWith(' — NTE 9-slot collectible')) value = names[key.replace(' — NTE 9-slot collectible','')] + ' — NTEの9マス所蔵品';
+  if (key.endsWith(' — NTE 9-slot collectible')) value = names[key.replace(' — NTE 9-slot collectible','')] + (code==='ja'?' — NTEの9マス所蔵品':' — NTE九宫格收藏品');
   if (value === undefined) {
     if (/[A-Za-z]{3}/.test(key) && !/^(NTE|AUCTION TOOLS|Google|Cloudflare|FormSubmit|GitHub|September|◈|https?:)/.test(key)) missing.add(key);
     return text;
@@ -37,20 +50,14 @@ function translateHTML(html) {
     return tag.replace(/\b(alt|aria-label|placeholder|title)="([^"]*)"/g, (_, attribute, value) => `${attribute}="${translate(value)}"`);
   });
 }
-function switcher(path, ja) {
-  return `<nav class="language-switch" aria-label="${ja?'言語':'Language'}"><a data-language="en" lang="en" hreflang="en" href="${path}"${ja?'':' aria-current="page"'}>English</a><span aria-hidden="true">/</span><a data-language="ja" lang="ja" hreflang="ja" href="${japanese(path)}"${ja?' aria-current="page"':''}>日本語</a></nav>`;
-}
-function alternates(path) {
-  return `<link rel="alternate" hreflang="en" href="${origin}${path}"><link rel="alternate" hreflang="ja" href="${origin}${japanese(path)}"><link rel="alternate" hreflang="x-default" href="${origin}${path}">`;
-}
-await mkdir('dist/ja/assets/src', {recursive:true});
+await mkdir(`dist${prefix}/assets/src`, {recursive:true});
 for (const slug of pages) {
   const path = route(slug), isError = ['404','500'].includes(slug);
-  let en = await readFile(`dist/${slug}.html`, 'utf8');
+  let en = originals.get(slug);
   // Contact option labels are translated, while the API's stable values remain English.
   en = en.replace(/<option>([^<]+)<\/option>/g, (_, label) => `<option value="${escape(label)}">${label}</option>`);
-  let ja = translateHTML(en).replace('<html lang="en">','<html lang="ja">');
-  ja = ja.replace(/(<option value=")(\/gold-rarity|\/)(")/g, '$1/ja$2$3');
+  let ja = translateHTML(en).replace('<html lang="en">',`<html lang="${code}">`);
+  ja = ja.replace(/(<option value=")(\/gold-rarity|\/)(")/g, `$1${prefix}$2$3`);
   ja = ja.replace(/<meta (name|property)="(description|og:title|og:description|twitter:title|twitter:description)" content="([^"]*)">/g,
     (_, kind, key, value) => `<meta ${kind}="${key}" content="${translate(value)}">`);
   ja = ja.replace(/(<link rel="canonical" href="|<meta property="og:url" content=")[^"]+"/g, `$1${origin}${japanese(path)}"`);
@@ -62,23 +69,23 @@ for (const slug of pages) {
       if (value && typeof value === 'object') {
         const result = Object.fromEntries(Object.entries(value).map(([key, item]) => [key,
           ['name','description','alternateName'].includes(key) && typeof item === 'string' ? translate(item,false) : localize(item)]));
-        if (result['@type'] && result['@type'] !== 'Offer') result.inLanguage='ja';
+        if (result['@type'] && result['@type'] !== 'Offer') result.inLanguage=code;
         return result;
       }
-      return typeof value === 'string' && value.startsWith(origin) ? origin + '/ja' + value.slice(origin.length) : value;
+      return typeof value === 'string' && value.startsWith(origin) ? origin + prefix + value.slice(origin.length) : value;
     }
     return `<script type="application/ld+json">${JSON.stringify(localize(data))}</script>`;
   });
-  for (const script of ['app','gold','workspace-switch','contact']) ja = ja.replaceAll(`src="/${script}.js"`, `src="/ja/assets/${script}.js"`);
+  for (const script of ['app','gold','workspace-switch','contact']) ja = ja.replaceAll(`src="/${script}.js"`, `src="${prefix}/assets/${script}.js"`);
   if (slug==='index' || slug==='gold-rarity') {
-    const note='<p class="translation-note">アイテム名は英語版からの参考訳です。ゲーム内の正式名称と異なる場合があります。画像内の表記とダウンロードデータは英語版です。</p>';
+    const note=code==='ja'?'<p class="translation-note">アイテム名は英語版からの参考訳です。ゲーム内の正式名称と異なる場合があります。画像内の表記とダウンロードデータは英語版です。</p>':'<p class="translation-note">物品名称为英文参考译名，可能与游戏内正式名称不同。图片文字和下载数据保留英文。</p>';
     ja = ja.replace('<form id="goldForm"', note + '<form id="goldForm"');
   }
-  for (const [lang, original] of [['en',en],['ja',ja]]) {
-    let html=original.replace('</header>',switcher(path,lang==='ja')+'</header>');
-    html=html.replace('</head>',`${isError?'':alternates(path)}<meta property="og:locale" content="${lang==='ja'?'ja_JP':'en_US'}"><link rel="stylesheet" href="/languages.css"></head>`);
-    html=html.replace('</body>',`<script src="/language-switch.js" defer></script>${lang==='ja'?'<script src="/ja-validation.js" defer></script>':''}</body>`);
-    await writeFile(lang==='en'?`dist/${slug}.html`:`dist/ja/${slug}.html`,html);
+  for (const [lang, original] of code==='ja'?[['en',en],[code,ja]]:[[code,ja]]) {
+    let html=original.replace('</header>',switcher(path,lang)+'</header>');
+    html=html.replace('</head>',`${isError?'':alternates(path)}<meta property="og:locale" content="${lang==='en'?'en_US':og}"><link rel="stylesheet" href="/languages.css"></head>`);
+    html=html.replace('</body>',`<script src="/language-switch.js" defer></script>${lang!=='en'?`<script src="/${key}-validation.js" defer></script>`:''}</body>`);
+    await writeFile(lang==='en'?`dist/${slug}.html`:`dist${prefix}/${slug}.html`,html);
   }
 }
 
@@ -93,39 +100,40 @@ for (const file of ['app.js','gold.js','workspace-switch.js','contact.js','gold-
   let source=await readFile(file==='app.js'?file:'public/'+file,'utf8');
   source=replaceRuntime(source);
   if (file==='gold.js') {
-    source=source.replace("new Worker('/gold-worker.js'", "new Worker('/ja/assets/gold-worker.js'");
+    source=source.replace("new Worker('/gold-worker.js'", `new Worker('${prefix}/assets/gold-worker.js'`);
     source=source.replace('i.name.toLowerCase()', '(i.name+" "+i.englishName).toLowerCase()');
     source=source.replace('${escape(i.name)}<small>', '${escape(i.name)}<small lang="en">${escape(i.englishName)}</small><small>');
   }
-  if (file==='workspace-switch.js') source=source.replaceAll("'/gold-rarity'","'/ja/gold-rarity'").replaceAll("'/'","'/ja/'").replaceAll("'/?device=", "'/ja/?device=");
+  if (file==='workspace-switch.js') source=source.replaceAll("'/gold-rarity'",`'${prefix}/gold-rarity'`).replaceAll("'/'",`'${prefix}/'`).replaceAll("'/?device=", `'${prefix}/?device=`);
   if (file==='contact.js') {
     source='const responseTranslations='+JSON.stringify(runtime)+';\n'+source;
     source=source.replace('result.error||', 'responseTranslations[result.error]||result.error||').replace('status.textContent=result.message','status.textContent=responseTranslations[result.message]||result.message');
   }
-  await writeFile('dist/ja/assets/'+file,source);
+  await writeFile(`dist${prefix}/assets/`+file,source);
 }
 const localizedItems=items.map(item=>({...item,englishName:item.name,name:names[item.name]}));
 if (localizedItems.some(item=>!item.name)) throw new Error('Missing Japanese gold item name');
-await writeFile('dist/ja/assets/gold-data.js','export const items = '+JSON.stringify(localizedItems)+';\n');
+await writeFile(`dist${prefix}/assets/gold-data.js`,'export const items = '+JSON.stringify(localizedItems)+';\n');
 let engine=await readFile('src/engine.js','utf8');
 if(ITEMS.some(item=>!names[item.name])) throw new Error('Missing Japanese nine-slot item name');
 if(!/export const ITEMS = \[[\s\S]*?\];/.test(engine)) throw new Error('Cannot locate shared nine-slot catalog');
 engine=engine.replace(/export const ITEMS = \[[\s\S]*?\];/, 'export const ITEMS = '+JSON.stringify(ITEMS.map(item=>({...item,name:names[item.name],short:names[item.name]})))+';');
-await writeFile('dist/ja/assets/src/engine.js',engine);
+await writeFile(`dist${prefix}/assets/src/engine.js`,engine);
 
+await mkdir('.localization', {recursive:true});
+await writeFile(`.localization/${key}-translation-audit.json`,JSON.stringify([...missing],null,2));
+console.log(`Generated ${code} pages; ${missing.size} text fragments require coverage review.`);
+}
 let sitemap=await readFile('dist/sitemap.xml','utf8');
 sitemap=sitemap.replace('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">','<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">');
 sitemap=sitemap.replace(/<url><loc>([^<]+)<\/loc>([\s\S]*?)<\/url>/g,(_,url,rest)=>{
-  const path=new URL(url).pathname;
-  const links=`<xhtml:link rel="alternate" hreflang="en" href="${url}"/><xhtml:link rel="alternate" hreflang="ja" href="${origin}${japanese(path)}"/><xhtml:link rel="alternate" hreflang="x-default" href="${url}"/>`;
-  return `<url><loc>${url}</loc>${rest}${links}</url>\n<url><loc>${origin}${japanese(path)}</loc><lastmod>2026-10-08</lastmod>${links}</url>`;
+ const path=new URL(url).pathname;
+ const links=languages.map(l=>`<xhtml:link rel="alternate" hreflang="${l.code}" href="${origin}${l.prefix}${path}"/>`).join('')+`<xhtml:link rel="alternate" hreflang="x-default" href="${url}"/>`;
+ return languages.map(l=>`<url><loc>${origin}${l.prefix}${path}</loc>${l.code==='en'?rest:`<lastmod>${l.code==='ja'?'2026-10-08':'2026-10-09'}</lastmod>`}${links}</url>`).join('\n');
 });
 await writeFile('dist/sitemap.xml',sitemap);
-await mkdir('.localization', {recursive:true});
-await writeFile('.localization/ja-translation-audit.json',JSON.stringify([...missing],null,2));
-console.log(`Generated Japanese pages; ${missing.size} text fragments require coverage review.`);
 // Version entry points so returning visitors receive updated UI and state handling.
-for(const prefix of ['', 'ja/assets/']) for(const script of ['app.js','gold.js','gold-worker.js']) {
+for(const prefix of ['', 'ja/assets/', 'zh-cn/assets/']) for(const script of ['app.js','gold.js','gold-worker.js']) {
   const file=`dist/${prefix}${script}`;
   let source=await readFile(file,'utf8');
   for(const dependency of script==='app.js'?['src/engine.js']:['gold-data.js','gold-limits.js']){
@@ -135,12 +143,12 @@ for(const prefix of ['', 'ja/assets/']) for(const script of ['app.js','gold.js',
   }
   await writeFile(file,source);
 }
-for(const prefix of ['', 'ja/assets/']) {
+for(const prefix of ['', 'ja/assets/', 'zh-cn/assets/']) {
   const file=`dist/${prefix}gold.js`, worker=`/${prefix}gold-worker.js`;
   const hash=createHash('sha256').update(await readFile('dist'+worker)).digest('hex').slice(0,12);
   await writeFile(file,(await readFile(file,'utf8')).replace(`'${worker}'`,`'${worker}?v=${hash}'`));
 }
-for(const prefix of ['', 'ja/']) for(const slug of pages){
+for(const prefix of ['', 'ja/', 'zh-cn/']) for(const slug of pages){
   const file=`dist/${prefix}${slug}.html`;
   let html=await readFile(file,'utf8');
   const assets=[...html.matchAll(/(?:src|href)="(\/[^"?]+\.(?:js|css))"/g)];
