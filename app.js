@@ -17,7 +17,9 @@ function readNumber(id){
 function criteria(){return {average:readNumber('average'),tolerance:Number($('tolerance').value),size:activeSize,};}
 function state(){return {average:$('average').value,tolerance:$('tolerance').value,size:activeSize,bid:$('bid').value,margin:$('margin').value,sort:$('sort').value,searched:hasSearched,page};}
 function syncUrl(){
-  const s=state(),u=new URL(location.href);u.search='';
+  const s=state(),u=new URL(location.href);
+  // Preserve the other device's clues and selected workspace during language changes.
+  for(const key of ['average','bid','size','tolerance','margin','sort','search','page'])u.searchParams.delete(key);
   for(const key of ['average','bid'])if(s[key])u.searchParams.set(key,s[key]);
   if(s.size)u.searchParams.set('size',s.size);
   if(s.tolerance!=='2')u.searchParams.set('tolerance',s.tolerance);

@@ -14,6 +14,18 @@ const env={ASSETS:{async fetch(request){const path=new URL(request.url).pathname
 test('Cloudflare serves assets and correct custom error status codes',async()=>{
   for(const [path,status] of [['/',200],['/missing',404],['/404',404],['/500',500]]){const r=await worker.fetch(new Request(origin+path),env);assert.equal(r.status,status);if(status>=400){assert.equal(r.headers.get('X-Robots-Tag'),'noindex');assert((await r.text()).includes(`/${status}.html`));}}
 });
+test('Japanese canonical homepage and error routes preserve language',async()=>{
+  for(const path of ['/ja','/ja/index','/ja/index.html']){
+    const response=await worker.fetch(new Request(origin+path+'?target=111111'),env);
+    assert.equal(response.status,301);assert.equal(response.headers.get('Location'),origin+'/ja/?target=111111');
+  }
+  const home=await worker.fetch(new Request(origin+'/ja/'),env);
+  assert.equal(home.status,200);assert.equal(await home.text(),'<h1>/ja</h1>');
+  for(const status of [404,500]){
+    const response=await worker.fetch(new Request(origin+'/ja/'+status),env);
+    assert.equal(response.status,status);assert((await response.text()).includes(`/ja/${status}.html`));
+  }
+});
 test('contact rejects wrong method, foreign origins, invalid JSON, and large payloads',async()=>{
   assert.equal((await worker.fetch(new Request(origin+'/api/contact'),env)).status,405);
   for(const [headers,body,status] of [[{Origin:'https://example.org','Content-Type':'application/json'},'{}',403],[{Origin:origin,'Content-Type':'application/json'},'{bad',400],[{Origin:origin,'Content-Type':'application/json'},'x'.repeat(16001),413],[{Origin:origin,'Content-Type':'application/json'},'{}',400]]){assert.equal((await worker.fetch(new Request(origin+'/api/contact',{method:'POST',headers,body}),env)).status,status);}

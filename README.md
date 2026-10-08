@@ -91,3 +91,11 @@ Production uses Cloudflare Workers with static assets. See [deployment instructi
 
 Local `.env*`, `.dev.vars*`, `.wrangler`, `.vercel`, dependencies and generated `dist` are excluded from Git. Never commit provider keys, dashboard credentials, contact recipient secrets, or local account bindings. The public analytics measurement ID is not a secret; forks should replace or remove it in `seo-pages.mjs`.
 
+## Japanese localization
+
+Japanese pages are available under `/ja/`, with an English / 日本語 switcher,
+translated tools and supporting pages, and reciprocal SEO language annotations.
+See [localization maintenance](docs/LOCALIZATION.md) for translation files,
+verification, and item-name limitations. Run `npm run test:i18n` to build and
+verify the language pairs and calculator parity.
+

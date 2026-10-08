@@ -8,4 +8,5 @@ await unlink('dist/src/engine.test.js').catch(error => { if(error.code !== 'ENOE
 await cp('public', 'dist', { recursive: true });
 await generatePages();
 await import('./link-gold.mjs');
+await import('./localize.mjs');
 console.log('Built static auction tool in dist/');

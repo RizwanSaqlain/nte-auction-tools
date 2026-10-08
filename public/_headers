@@ -1,3 +1,9 @@
 /*
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
+
+/combinations.csv
+  X-Robots-Tag: noindex
+
+/combinations.json
+  X-Robots-Tag: noindex
