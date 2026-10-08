@@ -348,5 +348,12 @@ export const items = [
     "price": 51077,
     "slot": 25,
     "img": "/gold-items/Orrery.png"
-  }
+  },
+{
+  "id": 50,
+  "name": "Creamy Berry Baguette",
+  "price": 30452,
+  "slot": 10,
+  "img": "/gold-items/CreamyBerryBaguette.png"
+}
 ];

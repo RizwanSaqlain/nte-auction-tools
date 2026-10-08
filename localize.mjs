@@ -125,6 +125,21 @@ await mkdir('.localization', {recursive:true});
 await writeFile('.localization/ja-translation-audit.json',JSON.stringify([...missing],null,2));
 console.log(`Generated Japanese pages; ${missing.size} text fragments require coverage review.`);
 // Version entry points so returning visitors receive updated UI and state handling.
+for(const prefix of ['', 'ja/assets/']) for(const script of ['app.js','gold.js','gold-worker.js']) {
+  const file=`dist/${prefix}${script}`;
+  let source=await readFile(file,'utf8');
+  for(const dependency of script==='app.js'?['src/engine.js']:['gold-data.js','gold-limits.js']){
+    if(!source.includes(`'./${dependency}'`))continue;
+    const hash=createHash('sha256').update(await readFile(`dist/${prefix}${dependency}`)).digest('hex').slice(0,12);
+    source=source.replaceAll(`'./${dependency}'`,`'./${dependency}?v=${hash}'`);
+  }
+  await writeFile(file,source);
+}
+for(const prefix of ['', 'ja/assets/']) {
+  const file=`dist/${prefix}gold.js`, worker=`/${prefix}gold-worker.js`;
+  const hash=createHash('sha256').update(await readFile('dist'+worker)).digest('hex').slice(0,12);
+  await writeFile(file,(await readFile(file,'utf8')).replace(`'${worker}'`,`'${worker}?v=${hash}'`));
+}
 for(const prefix of ['', 'ja/']) for(const slug of pages){
   const file=`dist/${prefix}${slug}.html`;
   let html=await readFile(file,'utf8');

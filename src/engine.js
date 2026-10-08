@@ -7,6 +7,7 @@ export const ITEMS = [
   { name:'Nine-Bite Snack Box', price:240208, file:'NineBiteSnackBox.png', short:'Nine-Bite Snack Box' },
   { name:'Thud-Thud Hammer', price:100000, file:'ThudThudHammer.png', short:'Thud-Thud Hammer' },
   { name:'Wheelchair Model', price:27159, file:'WheelChairModel.png', short:'Wheelchair Model' }
+  ,{ name:'Luminous Goblet', price:16800000, file:'LuminousGoblet.png', short:'Luminous Goblet' }
 ];
 export function findBundles(bundles, {average=null,tolerance=2,size=0,minimum=null,maximum=null,known={}}={}) {
   return bundles.filter(b => (!size || b.size===size)

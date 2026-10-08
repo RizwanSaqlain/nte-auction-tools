@@ -3,8 +3,13 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {ITEMS,findBundles,summarize} from './engine.js';
 const bundles=JSON.parse(readFileSync(new URL('../public/combinations.json',import.meta.url)));
-test('supplied catalog covers every unordered bundle of 1–7 items and correct values',()=>{
-  assert.equal(bundles.length,6434);
+test('Luminous Goblet supports single, repeated and mixed nine-slot matches',()=>{
+  assert.equal(findBundles(bundles,{average:16800000,size:1,tolerance:0})[0].sum,16800000);
+  assert.equal(findBundles(bundles,{average:16800000,size:7,tolerance:0})[0].sum,117600000);
+  assert(findBundles(bundles,{average:(16800000+6069)/2,size:2,tolerance:0}).some(b=>b.items.includes('Luminous Goblet')&&b.items.includes('Artwork: Deep Forest')));
+});
+test('supplied catalog covers every unordered bundle of 1â€“7 items and correct values',()=>{
+  assert.equal(bundles.length,11439);
   const keys=new Set();
   for(const b of bundles){assert.equal(b.items.length,b.size);const sum=b.items.reduce((n,name)=>n+ITEMS.find(i=>i.name===name).price,0);assert.equal(sum,b.sum);assert.ok(Math.abs(b.average-sum/b.size)<1e-6);keys.add([...b.items].sort().join('|'));}
   assert.equal(keys.size,bundles.length);

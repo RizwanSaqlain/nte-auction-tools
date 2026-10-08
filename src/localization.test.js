@@ -28,6 +28,10 @@ test('every indexable page has reciprocal language links and self canonical',asy
   }
 });
 test('translation preserves calculator values and exact bundle results',()=>{
+  const bread={target:30452,maxCount:1,maxPerItem:1,maxSlots:10,maxResults:100,required:{50:1}};
+  assert.deepEqual(searchGold(bread).results,[[{id:50,qty:1}]]);
+  assert.deepEqual(searchJapanese(bread).results,searchGold(bread).results);
+  assert.equal(searchGold({...bread,maxSlots:9}).reason,'infeasible');
   const numeric=bundles=>bundles.map(({size,sum,average})=>({size,sum,average}));
   assert.deepEqual(numeric(generateJapanese()),numeric(generateBundles()));
   assert.deepEqual(japaneseItems.map(({id,price,slot,img})=>({id,price,slot,img})),items.map(({id,price,slot,img})=>({id,price,slot,img})));

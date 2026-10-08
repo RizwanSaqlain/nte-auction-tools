@@ -20,8 +20,8 @@ Nine-slot calculator with sample matching bundles and bid planning:
 
 ## Tools
 
-- **Nine-slot Average Valuation Device:** match a gadget average against 6,434 unordered bundles of 1–7 items from eight nine-slot collectibles. Repeated items are allowed. Default tolerance compares rounded averages within ±2.
-- **Gold-rarity Valuation Device:** find combinations from a catalog of 50 gold items that match an exact total. Apply per-item, total-count, slot, and required-item constraints. Items are listed by ascending price with constrained quantity controls; results include images, required-item highlights, and average counts/slots across returned bundles.
+- **Nine-slot Average Valuation Device:** match a gadget average against 11,439 unordered bundles of 1–7 items from nine nine-slot collectibles. Repeated items are allowed. Default tolerance compares rounded averages within ±2.
+- **Gold-rarity Valuation Device:** find combinations from a catalog of 51 gold items that match an exact total. Apply per-item, total-count, slot, and required-item constraints. Items are listed by ascending price with constrained quantity controls; results include images, required-item highlights, and average counts/slots across returned bundles.
 - Switch tools and catalogs within the homepage workspace. Share calculator state through the URL.
 - Supporting pages explain bidding strategy, algorithms, limitations, and frequently asked questions.
 
